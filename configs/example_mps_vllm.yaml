@@ -1,0 +1,40 @@
+backend: vllm_openai
+model: meta-llama/Meta-Llama-3-8B-Instruct
+
+# In MPS mode you typically run ONE server per tenant (different ports) while all share the same GPU
+# with the CUDA MPS daemon enabled. Optionally set CUDA_MPS_ACTIVE_THREAD_PERCENTAGE for each server.
+tenants:
+  - id: A
+    endpoint: http://localhost:8001
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+  - id: B
+    endpoint: http://localhost:8002
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+workload:
+  kind: synthetic
+  mixed_probs: [0.6, 0.3, 0.1]
+
+benchmark:
+  run_name: mps_vllm
+  duration_s: 60
+  warmup_s: 10
+  stream: true
+  seed: 0
+
+telemetry:
+  enable_gpu: true
+  gpu_index: 0
+  sample_ms: 200
+
+slo:
+  latency_s: 5.0
