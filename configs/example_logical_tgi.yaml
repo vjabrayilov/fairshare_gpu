@@ -1,0 +1,37 @@
+backend: tgi_generate
+model: mistralai/Mistral-7B-Instruct-v0.2
+
+tenants:
+  - id: A
+    endpoint: http://localhost:8080
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+  - id: B
+    endpoint: http://localhost:8080
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+workload:
+  kind: synthetic
+
+benchmark:
+  run_name: logical_tgi
+  duration_s: 60
+  warmup_s: 10
+  stream: true
+  seed: 0
+
+telemetry:
+  enable_gpu: true
+  gpu_index: 0
+  sample_ms: 200
+
+slo:
+  latency_s: 5.0
