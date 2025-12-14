@@ -1,0 +1,40 @@
+backend: vllm_openai
+model: meta-llama/Meta-Llama-3-8B-Instruct
+
+# In MIG mode you typically run ONE server per tenant and bind each server to a different MIG slice
+# via CUDA_VISIBLE_DEVICES=<MIG_UUID>. The benchmark just points each tenant at its port.
+tenants:
+  - id: A
+    endpoint: http://localhost:8001
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+  - id: B
+    endpoint: http://localhost:8002
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+workload:
+  kind: synthetic
+  mixed_probs: [0.6, 0.3, 0.1]
+
+benchmark:
+  run_name: mig_vllm
+  duration_s: 60
+  warmup_s: 10
+  stream: true
+  seed: 0
+
+telemetry:
+  enable_gpu: true
+  gpu_index: 0
+  sample_ms: 200
+
+slo:
+  latency_s: 5.0
