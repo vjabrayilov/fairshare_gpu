@@ -1,0 +1,42 @@
+backend: vllm_openai
+model: meta-llama/Meta-Llama-3-8B-Instruct
+
+tenants:
+  - id: A
+    endpoint: http://localhost:8000
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+  - id: B
+    endpoint: http://localhost:8000
+    concurrency: 2
+    max_tokens: 128
+    temperature: 0.7
+    top_p: 0.9
+    workload: {mix: mixed}
+
+workload:
+  kind: synthetic
+  short_chars: 256
+  medium_chars: 1024
+  long_chars: 4096
+  mixed_probs: [0.6, 0.3, 0.1]
+
+benchmark:
+  run_name: logical_vllm
+  duration_s: 60
+  warmup_s: 10
+  timeout_s: 120
+  stream: true
+  seed: 0
+
+telemetry:
+  enable_gpu: true
+  gpu_index: 0
+  sample_ms: 200
+
+slo:
+  latency_s: 5.0
