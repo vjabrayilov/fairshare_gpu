@@ -1,0 +1,30 @@
+{"prompt": "Explain the difference between MIG and MPS for GPU sharing."}
+{"prompt": "Summarize what tail latency (P99) means in a serving system."}
+{"prompt": "Give a short definition of Jain's fairness index and what it measures."}
+{"prompt": "Write a small checklist for profiling GPU inference performance."}
+{"prompt": "Describe what KV-cache is and why it matters for long-context inference."}
+{"prompt": "What is head-of-line blocking? Provide an example in batching systems."}
+{"prompt": "Suggest three ways to reduce latency in LLM inference without changing the model."}
+{"prompt": "Explain why continuous batching can improve throughput."}
+{"prompt": "Compare isolation vs utilization trade-offs in multi-tenant inference."}
+{"prompt": "Write a short prompt that could stress test prefill (prompt processing)."}
+{"prompt": "Write a short prompt that could stress test decoding (many output tokens)."}
+{"prompt": "How can you measure interference between two co-located inference workloads?"}
+{"prompt": "What metrics would you log to evaluate fairness in multi-tenant inference?"}
+{"prompt": "Explain why small MIG slices might require quantization."}
+{"prompt": "Describe an admission control policy for mixed prompt lengths."}
+{"prompt": "Provide an example of an SLO for an LLM endpoint and how you'd verify it."}
+{"prompt": "What is time-to-first-token (TTFT) and why is it important?"}
+{"prompt": "Write a short note on why GPU utilization can be misleading."}
+{"prompt": "Propose a synthetic workload mix for chatbots: short, medium, long prompts."}
+{"prompt": "Explain in one paragraph what vLLM PagedAttention is used for."}
+{"prompt": "Explain the impact of prompt length on latency."}
+{"prompt": "Explain the impact of max_new_tokens on throughput and latency."}
+{"prompt": "What does it mean for a GPU resource to be oversubscribed?"}
+{"prompt": "Describe a 'noisy neighbor' effect in GPU inference."}
+{"prompt": "How might you mitigate noisy neighbors using batching knobs?"}
+{"prompt": "Write a test prompt asking the model to generate a numbered list of 100 items."}
+{"prompt": "Write a test prompt asking the model to summarize a long technical paragraph."}
+{"prompt": "Write a test prompt asking the model to answer briefly in under 20 words."}
+{"prompt": "Explain in simple terms what a GPU context is."}
+{"prompt": "List three risks when enabling MIG on a shared server."}
