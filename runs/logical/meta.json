@@ -1,0 +1,12 @@
+{
+  "run_id": "logical",
+  "mode": "logical",
+  "description": "Single server instance with continuous batching (logical multi-tenancy).",
+  "start_time": 1765758045.972608,
+  "end_time": 1765758175.972608,
+  "warmup_end": 1765758055.972608,
+  "synthetic": true,
+  "synthetic_seed": 2025,
+  "window_s": 120.0,
+  "warmup_s": 10.0
+}

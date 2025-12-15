@@ -1,0 +1,53 @@
+{
+  "aggregate": {
+    "requests_total": 540,
+    "requests_ok": 540,
+    "requests_err": 0,
+    "throughput_tokens_s": 569.8459264043048,
+    "rps": 4.540671992479225,
+    "latency_p50_s": 2.3259023427963257,
+    "latency_p95_s": 4.580421555042267,
+    "latency_p99_s": 5.608396539688114,
+    "ttft_p50_s": 0.42345118522644043,
+    "ttft_p95_s": 1.1801988959312433,
+    "ttft_p99_s": 1.8791689109802274,
+    "fairness_jain_throughput": 0.9568401537897919,
+    "window_s": 118.92512845993042,
+    "t0": 1765758056.7747192,
+    "t1": 1765758175.6998477
+  },
+  "per_tenant": {
+    "A": {
+      "tenant_id": "A",
+      "requests_total": 280,
+      "requests_ok": 280,
+      "requests_err": 0,
+      "error_rate": 0.0,
+      "rps": 2.3544225146188573,
+      "throughput_tokens_s": 224.41010025052879,
+      "latency_p50_s": 1.8567982912063599,
+      "latency_p95_s": 3.5857461214065554,
+      "latency_p99_s": 4.868943803310386,
+      "ttft_p50_s": 0.34664344787597656,
+      "ttft_p95_s": 0.8997357726097109,
+      "ttft_p99_s": 1.2497014451026904,
+      "slo_attainment": 0.9892857142857143
+    },
+    "B": {
+      "tenant_id": "B",
+      "requests_total": 260,
+      "requests_ok": 260,
+      "requests_err": 0,
+      "error_rate": 0.0,
+      "rps": 2.1862494778603674,
+      "throughput_tokens_s": 345.43582615377596,
+      "latency_p50_s": 2.885215640068054,
+      "latency_p95_s": 5.065336799621581,
+      "latency_p99_s": 6.285494117736834,
+      "ttft_p50_s": 0.5716515779495239,
+      "ttft_p95_s": 1.3763849854469294,
+      "ttft_p99_s": 2.0231273627281214,
+      "slo_attainment": 0.9461538461538461
+    }
+  }
+}

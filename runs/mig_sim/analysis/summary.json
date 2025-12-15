@@ -1,0 +1,53 @@
+{
+  "aggregate": {
+    "requests_total": 520,
+    "requests_ok": 520,
+    "requests_err": 0,
+    "throughput_tokens_s": 417.3939398236424,
+    "rps": 4.346199337357457,
+    "latency_p50_s": 2.7526477575302124,
+    "latency_p95_s": 3.9596679925918568,
+    "latency_p99_s": 4.688682243824005,
+    "ttft_p50_s": 0.5548101663589478,
+    "ttft_p95_s": 1.1179329514503478,
+    "ttft_p99_s": 1.4163660621643024,
+    "fairness_jain_throughput": 0.9999696769742215,
+    "window_s": 119.64476537704468,
+    "t0": 1765758059.985523,
+    "t1": 1765758179.6302884
+  },
+  "per_tenant": {
+    "A": {
+      "tenant_id": "A",
+      "requests_total": 260,
+      "requests_ok": 260,
+      "requests_err": 0,
+      "error_rate": 0.0,
+      "rps": 2.1730996686787285,
+      "throughput_tokens_s": 209.8462053135263,
+      "latency_p50_s": 2.388808488845825,
+      "latency_p95_s": 3.7670575737953187,
+      "latency_p99_s": 4.543678815364843,
+      "ttft_p50_s": 0.45312583446502686,
+      "ttft_p95_s": 0.8494657874107361,
+      "ttft_p99_s": 1.0300780391693138,
+      "slo_attainment": 1.0
+    },
+    "B": {
+      "tenant_id": "B",
+      "requests_total": 260,
+      "requests_ok": 260,
+      "requests_err": 0,
+      "error_rate": 0.0,
+      "rps": 2.1730996686787285,
+      "throughput_tokens_s": 207.5477345101161,
+      "latency_p50_s": 2.992393374443054,
+      "latency_p95_s": 4.087547647953033,
+      "latency_p99_s": 4.817900500297554,
+      "ttft_p50_s": 0.6827400922775269,
+      "ttft_p95_s": 1.226538228988647,
+      "ttft_p99_s": 1.5232948875427248,
+      "slo_attainment": 0.9923076923076923
+    }
+  }
+}

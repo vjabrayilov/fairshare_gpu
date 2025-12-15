@@ -1,0 +1,12 @@
+{
+  "run_id": "synthetic_mps",
+  "mode": "mps",
+  "description": "Two processes/servers sharing one GPU under NVIDIA CUDA MPS (no per-tenant caps).",
+  "start_time": 1765758047.8689313,
+  "end_time": 1765758177.8689313,
+  "warmup_end": 1765758057.8689313,
+  "synthetic": true,
+  "synthetic_seed": 2026,
+  "window_s": 120.0,
+  "warmup_s": 10.0
+}

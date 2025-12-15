@@ -1,0 +1,12 @@
+{
+  "run_id": "synthetic_mig_sim",
+  "mode": "mig_sim",
+  "description": "MIG simulated via per-process resource caps (thread and memory limits) to approximate 50/50 partitioning.",
+  "start_time": 1765758049.6691346,
+  "end_time": 1765758179.6691346,
+  "warmup_end": 1765758059.6691346,
+  "synthetic": true,
+  "synthetic_seed": 2027,
+  "window_s": 120.0,
+  "warmup_s": 10.0
+}
