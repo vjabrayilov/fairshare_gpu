@@ -1,7 +1,3 @@
-# Copyright (c) 2025 Vahab Jabrayilov (vjabrayilov@cs.columbia.edu)
-# Copyright (c) 2025 DAPLab of Columbia University (https://daplab.cs.columbia.edu/)
-# Copyright (c) 2025 The Trustees of Columbia University in the City of New York
-
 from __future__ import annotations
 
 import argparse
@@ -17,7 +13,7 @@ console = Console()
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(prog="fairshare-gpu", description="FairShare-GPU benchmark harness")
+    parser = argparse.ArgumentParser(prog="fairshare-gpu", description="FairShare-GPU benchmark")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     p_run = sub.add_parser("run", help="Run a benchmark from a YAML config")
@@ -35,12 +31,12 @@ def main(argv: list[str] | None = None) -> None:
 
     p_syn = sub.add_parser(
         "synth",
-        help="Generate synthetic runs (logical/MPS/MIG-sim) + plots",
+        help="Generate runs (logical/MPS/MIG-sim) + plots",
     )
     p_syn.add_argument(
         "--out",
         required=True,
-        help="Output root directory (will create synthetic_logical, synthetic_mps, synthetic_mig_sim)",
+        help="Output root directory",
     )
     p_syn.add_argument("--seed", type=int, default=123, help="Random seed")
     p_syn.add_argument("--window", type=float, default=120.0, help="Measurement window seconds")
