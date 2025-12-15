@@ -1,215 +1,97 @@
-# FairShare-GPU
+# HPML Project: FairShare-GPU: A Practical Demo of Multi-Tenant GPU Sharing for LLM Inference
 
-**FairShare-GPU** is a practical benchmarking + demo tool for **multi-tenant GPU sharing during LLM inference**.
-It is designed to help **measure isolation, utilization, tail-latency, and fairness** when multiple tenants
-share a single NVIDIA GPU using:
-
-1. **Spatial partitioning** via **MIG** (multiple serving instances, each bound to a MIG slice)
-2. **Process/time sharing** via **MPS / time-slicing** (multiple serving instances/processes share one GPU)
-3. **Logical sharing** inside a serving framework (e.g., a single vLLM server handling all tenants)
-
-The repository does **not** implement model serving itself. Instead, it provides:
-- a **multi-tenant load generator** (async, streaming) for vLLM/TGI endpoints
-- a **GPU telemetry sampler** (NVML) for utilization/memory/power/temperature
-- a **results format** (JSONL + CSV) and **analysis/plotting scripts**
+## Team Information
+- **Team Name**: FairShare
+- **Members**:
+    - Vahab Jabrayilov (vj2267)
+    - Pulak Mehrorta (pm3371)
 
 ---
 
-## Repository layout
-
-```
-fairshare-gpu/
-  configs/                  # Example experiment configs (YAML)
-  data/                     # Small prompt sets + helpers
-  report/                   # LaTeX report template (IEEE-style) + assets folder
-  runs/                     # Run results
-  scripts/                  # Convenience launchers
-  src/fairshare_gpu/        # Python package
-  pyproject.toml            # Python deps + entrypoints
-```
+## 1. Problem Statement
+LLM inference is increasingly deployed as a shared service where multiple tenants with heterogeneous prompt lengths, output lengths, and decoding parameters compete for the same GPU resources. The resulting contention can create head-of-line blocking, unpredictable tail latency, and "noisy neighbor" interference. This project investigates practical multi-tenant GPU sharing for LLM inference (focusing on NVIDIA L4) and provides a reproducible benchmark harness that quantifies throughput, latency percentiles (P95/P99), time-to-first-token (TTFT), and fairness under mixed workloads.
 
 ---
 
-## Prerequisites
+## 2. Model Description
+We focus on single-GPU serving mechanisms (Logical, MPS, Simulated MIG) using open-source serving backends.
 
-### Hardware / system
-- **NVIDIA GPU** with a recent driver and CUDA runtime.
-- For **MIG mode**: an **A100/H100**-class GPU that supports MIG.
-- For **MPS mode**: any CUDA GPU that supports MPS.
-
-### Serving backends
-This repo assumes you run a serving backend separately, then benchmark it:
-
-- **vLLM**: run the OpenAI-compatible server.
-- **Hugging Face TGI**: use the native `/generate` endpoint.
-
+- **Models**: Llama-3 8B Instruct (primary), Mistral 7B Instruct (alternative).
+- **Frameworks**: 
+    - [vLLM](https://github.com/vllm-project/vllm) (for logical sharing)
+    - [TGI / Text-Generation-Inference](https://github.com/huggingface/text-generation-inference) (supported)
+    - NVIDIA MPS (Multi-Process Service)
+- **Hardware**: NVIDIA L4 GPU (24GB). Since L4 lacks MIG support, we implemented a simulated MIG baseline using resource limits.
 
 ---
 
-## Install (client + analysis tooling)
+## 3. Final Results Summary
+Aggregate metrics across sharing modes (120s window):
 
-Create a Python 3.10+ environment and install this repo in editable mode:
+| Metric | Logical Sharing | MPS Sharing | MIG-Simulated |
+|:-----------------------|:---------------:|:-----------:|:-------------:|
+| **Throughput** (tok/s) | 569.8 | 539.7 | 417.4 |
+| **P95 Latency** (s) | 4.58 | 5.24 | 3.96 |
+| **P99 Latency** (s) | 5.61 | 6.88 | 4.69 |
+| **Jain Fairness** | 0.957 | 0.897 | 1.000 |
+| **Device** | NVIDIA L4 (AWS g6.8xlarge) | NVIDIA L4 | NVIDIA L4 |
 
+*Key Insight*: Logical sharing provides the highest throughput, while simulated MIG offers the best isolation (fairness and tail latency) at the cost of aggregate performance. MPS suffers from "noisy neighbor" effects with high tail latency.
+
+---
+
+## 4. Reproducibility Instructions
+
+### A. Requirements
+Install dependencies and the project package:
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-
+pip install -r requirements.txt
 pip install -e .
 ```
 
-This installs the benchmarking/analysis dependencies (httpx, pandas, matplotlib, pynvml, etc.).
-Need to install **vLLM/TGI separately** according to their docs.
+
+### C. Training (Inference Benchmark)
+This project is inference-only. To run the benchmark (e.g., Logical Sharing with vLLM):
+```bash
+# Example: Run logical sharing benchmark demo
+fairshare-gpu run --config configs/example_logical_vllm.yaml --out runs/logical_demo
+```
+This command launches the server (vLLM), generates synthetic workload traffic, and logs metrics to the output directory.
 
 ---
 
-## Quickstart (single server, multi-tenant logical sharing)
-
-### 1) Start vLLM OpenAI server (example)
-
-In another terminal:
-
+### D. Evaluation
+To analyze key metrics and generate plots from a run:
 ```bash
-# Example: vLLM OpenAI-compatible server (adjust model + dtype for your GPU)
-python -m vllm.entrypoints.openai.api_server   --host 0.0.0.0 --port 8000   --model meta-llama/Meta-Llama-3-8B-Instruct   --dtype bfloat16   --max-num-batched-tokens 8192
-```
-
-Verify it responds:
-
-```bash
-curl http://localhost:8000/v1/models
-```
-
-### 2) Run a benchmark
-
-```bash
-fairshare-gpu run --config configs/example_logical_vllm.yaml --out runs/logical_demo
-```
-
-Outputs:
-- `runs/logical_demo/requests.jsonl`  (per-request measurements)
-- `runs/logical_demo/gpu.csv`         (NVML telemetry, if enabled)
-- `runs/logical_demo/config.resolved.yaml`
-
-### 3) Analyze + plot
-
-```bash
+# Analyze results and generate plots (saved to runs/logical_demo/assets)
 fairshare-gpu analyze --run runs/logical_demo
 fairshare-gpu plot --run runs/logical_demo
 ```
 
-This creates:
-- `runs/logical_demo/analysis/summary.json`
-- `runs/logical_demo/figures/*.png`
-
 ---
 
-## Running MIG experiments
-
-**Goal:** start *one server per tenant* and bind each server to a **different MIG device**.
-
-High-level steps:
-1. Enable MIG and create GPU/compute instances (`nvidia-smi mig ...`)
-2. Run `nvidia-smi -L` to list MIG device UUIDs
-3. Launch one vLLM/TGI server per tenant with `CUDA_VISIBLE_DEVICES=<MIG_UUID>`
-4. Run with a config that points each tenant to its server endpoint
-
-Example server launch (per tenant):
+### E. Quickstart: Minimum Reproducible Result
+To reproduce our findings:
 
 ```bash
-export CUDA_VISIBLE_DEVICES="MIG-xxxxxxxx-xxxx-...."   # one slice UUID
-python -m vllm.entrypoints.openai.api_server --port 8001 --model ... &
-```
+# Step 1: Set up environment
+pip install -r requirements.txt
+pip install -e .
 
-Then run:
+# Step 2: Run a quick benchmark (Logical Sharing)
+# This uses the example config included in the repo
+fairshare-gpu run --config configs/example_logical_vllm.yaml --out runs/quickstart_logical
 
-```bash
-fairshare-gpu run --config configs/example_mig_vllm.yaml --out runs/mig_demo
-```
-
-> Notes
-> - MIG changes require GPU reset and typically admin privileges.
-> - MIG profiles and commands vary by GPU model; use `nvidia-smi mig -lgip` to list supported profiles.
-
----
-
-## Running MPS experiments
-
-**Goal:** run multiple processes/servers on the *same GPU* while the **MPS daemon** enables concurrent kernel execution.
-
-Typical flow:
-1. Start the MPS control daemon
-2. Optionally set per-process `CUDA_MPS_ACTIVE_THREAD_PERCENTAGE` to approximate fairness
-3. Launch one server per tenant (different ports)
-4. Benchmark
-
-Example:
-
-```bash
-# Start MPS daemon (paths can be anywhere writable)
-export CUDA_MPS_PIPE_DIRECTORY=/tmp/nvidia-mps
-export CUDA_MPS_LOG_DIRECTORY=/tmp/nvidia-mps
-nvidia-cuda-mps-control -d
-
-# Tenant A server (example)
-export CUDA_MPS_ACTIVE_THREAD_PERCENTAGE=50
-python -m vllm.entrypoints.openai.api_server --port 8001 --model ... &
-
-# Tenant B server (example)
-export CUDA_MPS_ACTIVE_THREAD_PERCENTAGE=50
-python -m vllm.entrypoints.openai.api_server --port 8002 --model ... &
-```
-
-Then run:
-
-```bash
-fairshare-gpu run --config configs/example_mps_vllm.yaml --out runs/mps_demo
-```
-
-Stop MPS:
-
-```bash
-echo quit | nvidia-cuda-mps-control
+# Step 3: Analyze results
+fairshare-gpu analyze --run runs/quickstart_logical
+# Output will be in runs/quickstart_logical/summary.csv
 ```
 
 ---
 
-## Configuration files (YAML)
-
-Benchmarks are driven by a single YAML config.
-
-Key fields:
-- `backend`: `vllm_openai` or `tgi_generate`
-- `model`: model name for token counting (HF tokenizer)
-- `tenants[]`: each tenant has an `id`, an `endpoint`, and a workload definition
-- `workload`: dataset source + prompt mix (synthetic or JSONL)
-- `benchmark`: duration, warmup, streaming, rate/concurrency controls
-- `telemetry`: NVML sampling settings
-
-See `configs/` for examples.
-
----
-
-## Metrics computed
-
-From `requests.jsonl`, we compute (per tenant and aggregated):
-- **Throughput:** output tokens/s and requests/s
-- **Latency:** P50 / P95 / P99 end-to-end latency
-- **TTFT:** time-to-first-token (streaming mode)
-- **SLO attainment:** fraction of requests meeting a latency SLO
-- **Fairness:** Jain’s fairness index over per-tenant throughput
-- **Interference:** slowdown vs a baseline run 
-
-GPU telemetry (from `gpu.csv`):
-- GPU utilization %, memory utilization %, memory used/total, power, temperature
-
-
----
-
-## Common issues / troubleshooting
-
-- **Streaming hangs / timeouts:** increase `benchmark.timeout_s` and ensure server supports streaming.
-- **Tokenizer download is slow:** set `HF_HOME` to a fast disk cache, or pre-download models.
-- **NVML errors:** install a recent NVIDIA driver; `pynvml` reads telemetry via the driver.
-- **MIG not available:** use `logical` + `mps` modes and still quantify tail-latency & fairness.
-
+## 5. Notes
+- **Scripts**: All scripts are located in `scripts/`. Main logic is in `src/fairshare_gpu/`.
+- **Configs**: See `configs/` for different sharing modes (Logical vs MPS).
+- **Contact**: 
+    - Vahab Jabrayilov (vj2267@columbia.edu)
+    - Pulak Mehrorta (pm3371@columbia.edu)
