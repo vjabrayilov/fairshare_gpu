@@ -22,6 +22,7 @@ fairshare-gpu/
   configs/                  # Example experiment configs (YAML)
   data/                     # Small prompt sets + helpers
   report/                   # LaTeX report template (IEEE-style) + assets folder
+  runs/                     # Run results
   scripts/                  # Convenience launchers
   src/fairshare_gpu/        # Python package
   pyproject.toml            # Python deps + entrypoints
