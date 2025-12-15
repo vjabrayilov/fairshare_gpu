@@ -40,7 +40,7 @@ def main(argv: list[str] | None = None) -> None:
     p_syn.add_argument(
         "--out",
         required=True,
-        help="Output root directory (will create synthetic_logical, synthetic_mps, synthetic_mig_sim)",
+        help="Output root directory (will create logical, mps, mig_sim)",
     )
     p_syn.add_argument("--seed", type=int, default=123, help="Random seed")
     p_syn.add_argument("--window", type=float, default=120.0, help="Measurement window seconds")
@@ -67,9 +67,9 @@ def main(argv: list[str] | None = None) -> None:
     if args.cmd == "synth":
         df = generate_all_synthetic(args.out, seed=args.seed, window_s=args.window, warmup_s=args.warmup)
         out_dir = Path(args.out)
-        df.to_csv(out_dir / "synthetic_summary.csv", index=False)
+        df.to_csv(out_dir / "summary.csv", index=False)
         plot_mode_comparison(df, out_dir)
-        console.print(f"[green]Wrote[/green] {out_dir/'synthetic_summary.csv'}")
+        console.print(f"[green]Wrote[/green] {out_dir/'summary.csv'}")
         return
 
     raise SystemExit(2)

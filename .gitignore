@@ -10,7 +10,6 @@ build/
 .env
 
 # Data / outputs
-runs/
 report/assets/*.png
 report/assets/*.pdf
 
