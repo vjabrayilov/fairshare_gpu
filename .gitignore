@@ -9,9 +9,5 @@ build/
 .venv/
 .env
 
-# Data / outputs
-report/assets/*.png
-report/assets/*.pdf
-
 # OS
 .DS_Store
